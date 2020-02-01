@@ -8,6 +8,8 @@ RUN go get -d -v ./... && \
 
 FROM alpine:latest
 
+EXPOSE 8080
+
 COPY --from=build /go/bin/game-room-service /usr/local/bin
 
 CMD ["game-room-service"]
