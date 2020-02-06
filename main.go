@@ -23,13 +23,7 @@ type Player struct {
 var rooms []Room = make([]Room, 0)
 
 func main() {
-	/*if os.Getenv("PRODUCTION") == "prod" {
-		gin.SetMode(gin.ReleaseMode)
-	} else if os.Getenv("") == "" {
-
-	} else {*/
 	log.SetLevel(log.DebugLevel)
-	gin.SetMode(gin.TestMode)
 
 	log.Info("Starting game room service")
 
@@ -37,9 +31,16 @@ func main() {
 
 	router := gin.Default()
 
-	router.POST("/room/create", func(c *gin.Context) {
-		room := createRoom()
+	router.POST("/rooms/create", func(c *gin.Context) {
+		var player Player
 
+		if err := c.ShouldBindJSON(&player); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		room := createRoom()
+		room.Players = append(room.Players, player)
 		rooms = append(rooms, *room)
 
 		c.JSON(http.StatusOK, room)
@@ -56,12 +57,32 @@ func main() {
 		}
 	})
 
-	router.GET("/room/:code/join", func(c *gin.Context) {
-		
+	router.POST("/room/:code/join", func(c *gin.Context) {
+		code := c.Param("code")
+		room, err := lookupRoom(code)
+
+		if err != nil {
+			var player Player
+
+			if err := c.ShouldBindJSON(&player); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			room.Players = append(room.Players, player)
+
+			c.JSON(http.StatusOK, room)
+		} else {
+			c.JSON(http.StatusNotFound, "Room code "+code+" does not exist")
+		}
 	})
 
-	if gin.Mode() == gin.TestMode {
-		router.GET("/room", func(c *gin.Context) {
+	/*router.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, "Page not found")
+	})*/
+
+	if gin.Mode() != gin.ReleaseMode {
+		router.GET("/rooms", func(c *gin.Context) {
 			c.JSON(http.StatusOK, rooms)
 		})
 	}
@@ -83,9 +104,20 @@ func lookupRoom(code string) (*Room, error) {
 func createRoom() *Room {
 	runes := make([]rune, 4)
 
-	for i := 0; i < len(runes); i++ {
-		runes[i] = rune(rand.Intn(26) + 65)
+	var code string
+
+	for {
+		for i := 0; i < len(runes); i++ {
+			runes[i] = rune(rand.Intn(26) + 65)
+		}
+
+		code = string(runes)
+		_, err := lookupRoom(code)
+
+		if err != nil {
+			break
+		}
 	}
 
-	return &Room{string(runes), make([]Player, 0)}
+	return &Room{code, make([]Player, 0)}
 }
