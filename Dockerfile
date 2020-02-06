@@ -3,13 +3,13 @@ FROM golang:alpine AS build
 WORKDIR /go/source/app
 COPY . .
 
-RUN go get -d -v ./... && \
-    go install -v ./...
+RUN go get -d -v && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /bin/app
 
-FROM alpine:latest
+FROM scratch
 
 EXPOSE 8080
 
-COPY --from=build /go/bin/game-room-service /usr/local/bin
+COPY --from=build /bin/app /
 
-CMD ["game-room-service"]
+CMD ["/app"]
