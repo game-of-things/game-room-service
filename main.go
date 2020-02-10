@@ -48,20 +48,20 @@ func main() {
 
 	router.GET("/room/:code", func(c *gin.Context) {
 		code := c.Param("code")
-		room, err := lookupRoom(code)
 
-		if err != nil {
+		if room, err := lookupRoom(code); err == nil {
 			c.JSON(http.StatusOK, room)
 		} else {
-			c.JSON(http.StatusNotFound, "Room code "+code+" does not exist")
+			c.JSON(http.StatusNotFound, err.Error())
 		}
 	})
 
 	router.POST("/room/:code/join", func(c *gin.Context) {
 		code := c.Param("code")
-		room, err := lookupRoom(code)
 
-		if err != nil {
+		log.Debug("Attempting to join room" + code)
+
+		if room, err := lookupRoom(code); err == nil {
 			var player Player
 
 			if err := c.ShouldBindJSON(&player); err != nil {
@@ -73,13 +73,13 @@ func main() {
 
 			c.JSON(http.StatusOK, room)
 		} else {
-			c.JSON(http.StatusNotFound, "Room code "+code+" does not exist")
+			c.JSON(http.StatusNotFound, err.Error())
 		}
 	})
 
-	/*router.NoRoute(func(c *gin.Context) {
+	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")
-	})*/
+	})
 
 	if gin.Mode() != gin.ReleaseMode {
 		router.GET("/rooms", func(c *gin.Context) {
@@ -91,14 +91,15 @@ func main() {
 }
 
 func lookupRoom(code string) (*Room, error) {
-	for _, room := range rooms {
-		log.Debug("Room code ", room.Code)
-		if room.Code == code {
-			return &room, nil
+	for index := range rooms {
+		log.Debug("Room code ", rooms[index].Code)
+		if rooms[index].Code == code {
+			log.Debug("Found room: " + code)
+			return &rooms[index], nil
 		}
 	}
 
-	return &Room{}, errors.New("Room does not exist")
+	return &Room{}, errors.New("Room code " + code + " does not exist")
 }
 
 func createRoom() *Room {
