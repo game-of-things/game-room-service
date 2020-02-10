@@ -11,18 +11,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Room struct {
-	Code    string
-	Players []Player
-}
-
-type Player struct {
-	Name string
-}
-
 var rooms []Room = make([]Room, 0)
 
 func main() {
+	router := setupRouter()
+
+	router.Run(":8080")
+}
+
+func setupRouter() *gin.Engine {
 	log.SetLevel(log.DebugLevel)
 
 	log.Info("Starting game room service")
@@ -87,7 +84,7 @@ func main() {
 		})
 	}
 
-	router.Run(":8080")
+	return router
 }
 
 func lookupRoom(code string) (*Room, error) {
