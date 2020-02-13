@@ -16,10 +16,16 @@ var (
 		Name: "active_rooms",
 		Help: "Total number of active rooms",
 	})
+
+	roomDuration = prometheus.NewSummary(prometheus.SummaryOpts{
+		Name: "room_duration_sum",
+		Help: "Total duration of active rooms",
+	})
 )
 
 func init() {
 	prometheus.MustRegister(activeRooms)
+	prometheus.MustRegister(roomDuration)
 }
 
 // ListRooms list all the available rooms
@@ -34,6 +40,7 @@ func CreateRoom(player Player) *Room {
 	rooms = append(rooms, *room)
 
 	activeRooms.Inc()
+	room.Timer = prometheus.NewTimer(roomDuration)
 
 	return room
 }
@@ -56,7 +63,7 @@ func createRoom() *Room {
 		}
 	}
 
-	return &Room{code, make([]Player, 0)}
+	return &Room{code, make([]Player, 0), nil}
 }
 
 // LookupRoom find a room by the character code
