@@ -8,6 +8,7 @@ import (
 
 func main() {
 
+	// set random seed for generating unique values
 	rand.Seed(time.Now().UnixNano())
 
 	router := router.SetupRouter()
