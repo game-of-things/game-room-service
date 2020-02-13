@@ -55,7 +55,31 @@ func SetupRouter() *gin.Engine {
 		log.Debug("Attempting to join room" + code)
 
 		if room, err := rooms.LookupRoom(code); err == nil {
-			rooms.AddPlayer(player, room)
+			rooms.Join(player, room)
+
+			c.JSON(http.StatusOK, room)
+		} else {
+			c.JSON(http.StatusNotFound, err.Error())
+		}
+	})
+
+	router.POST("/room/:code/quit", func(c *gin.Context) {
+		var player rooms.Player
+
+		if err := c.ShouldBindJSON(&player); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		code := c.Param("code")
+
+		log.Debug("Attempting to quit room" + code)
+
+		if room, err := rooms.LookupRoom(code); err == nil {
+			if err := rooms.Quit(player, room); err != nil {
+				c.JSON(http.StatusNotFound, err.Error())
+				return
+			}
 
 			c.JSON(http.StatusOK, room)
 		} else {

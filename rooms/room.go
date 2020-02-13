@@ -79,7 +79,19 @@ func LookupRoom(code string) (*Room, error) {
 	return &Room{}, errors.New("Room code " + code + " does not exist")
 }
 
-// AddPlayer add a player to a specified room
-func AddPlayer(player Player, room *Room) {
+// Join add a player to a specified room
+func Join(player Player, room *Room) {
 	room.Players = append(room.Players, player)
+}
+
+// Quit remove player from specified room
+func Quit(player Player, room *Room) error {
+	for index := range room.Players {
+		if room.Players[index].Name == player.Name {
+			room.Players = append(room.Players[:index], room.Players[index+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("Player " + player.Name + " not found in room " + room.Code)
 }
