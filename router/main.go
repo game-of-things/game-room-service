@@ -7,6 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"game-room-service/rooms"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // SetupRouter create the router
@@ -71,5 +73,15 @@ func SetupRouter() *gin.Engine {
 		})
 	}
 
+	router.GET("/metrics", prometheusHandler())
+
 	return router
+}
+
+func prometheusHandler() gin.HandlerFunc {
+	h := promhttp.Handler()
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
 }

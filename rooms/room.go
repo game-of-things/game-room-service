@@ -3,12 +3,24 @@ package rooms
 import (
 	"errors"
 	"math/rand"
-	_ "time"
 
 	log "github.com/sirupsen/logrus"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
-var rooms []Room = make([]Room, 0)
+var (
+	rooms []Room = make([]Room, 0)
+
+	activeRooms = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "active_rooms",
+		Help: "Total number of active rooms",
+	})
+)
+
+func init() {
+	prometheus.MustRegister(activeRooms)
+}
 
 // ListRooms list all the available rooms
 func ListRooms() *[]Room {
@@ -20,6 +32,8 @@ func CreateRoom(player Player) *Room {
 	room := createRoom()
 	room.Players = append(room.Players, player)
 	rooms = append(rooms, *room)
+
+	activeRooms.Inc()
 
 	return room
 }
