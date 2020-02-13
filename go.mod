@@ -1,4 +1,4 @@
-module github.com/game-of-things/game-room-service
+module game-room-service
 
 go 1.13
 

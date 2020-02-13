@@ -1,6 +1,7 @@
 package main
 
 import (
+	"game-room-service/router"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestPingRoute(t *testing.T) {
-	router := setupRouter()
+	router := router.SetupRouter()
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/rooms", nil)

@@ -1,4 +1,4 @@
-package main
+package router
 
 // Room information
 type Room struct {
