@@ -78,6 +78,7 @@ func SetupRouter() *gin.Engine {
 	return router
 }
 
+// map the prometheus http.Handler to a gin.HandlerFunc
 func prometheusHandler() gin.HandlerFunc {
 	h := promhttp.Handler()
 
