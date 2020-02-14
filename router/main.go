@@ -97,16 +97,7 @@ func SetupRouter() *gin.Engine {
 		})
 	}
 
-	router.GET("/metrics", prometheusHandler())
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	return router
-}
-
-// map the prometheus http.Handler to a gin.HandlerFunc
-func prometheusHandler() gin.HandlerFunc {
-	h := promhttp.Handler()
-
-	return func(c *gin.Context) {
-		h.ServeHTTP(c.Writer, c.Request)
-	}
 }
