@@ -13,12 +13,12 @@ var (
 	rooms []Room = make([]Room, 0)
 
 	activeRooms = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "active_rooms",
+		Name: "gameofthings_active_rooms_total",
 		Help: "Total number of active rooms",
 	})
 
 	roomDuration = prometheus.NewSummary(prometheus.SummaryOpts{
-		Name: "room_duration_sum",
+		Name: "gameofthings_room_duration_seconds",
 		Help: "Total duration of active rooms",
 	})
 )
