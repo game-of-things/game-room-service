@@ -73,7 +73,7 @@ func SetupRouter() *gin.Engine {
 
 		code := c.Param("code")
 
-		log.Debug("Attempting to quit room" + code)
+		log.Debug("Attempting to quit room " + code)
 
 		if room, err := rooms.LookupRoom(code); err == nil {
 			if err := rooms.Quit(player, room); err != nil {
@@ -81,7 +81,7 @@ func SetupRouter() *gin.Engine {
 				return
 			}
 
-			c.JSON(http.StatusOK, room)
+			c.JSON(http.StatusOK, gin.H{"message": "Player quit"})
 		} else {
 			c.JSON(http.StatusNotFound, err.Error())
 		}

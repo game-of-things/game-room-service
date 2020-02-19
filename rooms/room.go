@@ -37,10 +37,11 @@ func ListRooms() *[]Room {
 func CreateRoom(player Player) *Room {
 	room := createRoom()
 	room.Players = append(room.Players, player)
+	room.Timer = prometheus.NewTimer(roomDuration)
+
 	rooms = append(rooms, *room)
 
 	activeRooms.Inc()
-	room.Timer = prometheus.NewTimer(roomDuration)
 
 	return room
 }
@@ -88,10 +89,24 @@ func Join(player Player, room *Room) {
 func Quit(player Player, room *Room) error {
 	for index := range room.Players {
 		if room.Players[index].Name == player.Name {
+			if len(room.Players) <= 1 {
+				removeRoom(room)
+				return nil
+			}
 			room.Players = append(room.Players[:index], room.Players[index+1:]...)
 			return nil
 		}
 	}
 
 	return errors.New("Player " + player.Name + " not found in room " + room.Code)
+}
+
+func removeRoom(room *Room) {
+	log.Debug("Removing room " + room.Code)
+	for index := range rooms {
+		if rooms[index].Code == room.Code {
+			room.Timer.ObserveDuration()
+			rooms = append(rooms[:index], rooms[index+1:]...)
+		}
+	}
 }
