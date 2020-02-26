@@ -10,7 +10,9 @@ import (
 )
 
 var (
-	rooms []Room = make([]Room, 0)
+	//rooms []Room = make([]Room, 0)
+
+	roomsMap = RoomMap{}
 
 	activeRooms = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "gameofthings_active_rooms_total",
@@ -29,8 +31,9 @@ func init() {
 }
 
 // ListRooms list all the available rooms
-func ListRooms() *[]Room {
-	return &rooms
+func ListRooms() []*Room {
+	//return &rooms
+	return roomsMap.GetAll()
 }
 
 // CreateRoom create a room with a Player resource
@@ -39,9 +42,12 @@ func CreateRoom(player Player) *Room {
 	room.Players = append(room.Players, player)
 	room.Timer = prometheus.NewTimer(roomDuration)
 
-	rooms = append(rooms, *room)
+	//rooms = append(rooms, *room)
+	roomsMap.Add(room.Code, room)
 
 	activeRooms.Inc()
+
+	log.Debug(roomsMap)
 
 	return room
 }
@@ -69,12 +75,17 @@ func createRoom() *Room {
 
 // LookupRoom find a room by the character code
 func LookupRoom(code string) (*Room, error) {
-	for index := range rooms {
+	/*for index := range rooms {
 		log.Debug("Room code ", rooms[index].Code)
 		if rooms[index].Code == code {
 			log.Debug("Found room: " + code)
 			return &rooms[index], nil
 		}
+	}
+	*/
+
+	if room := roomsMap.Get(code); room != nil {
+		return room, nil
 	}
 
 	return &Room{}, errors.New("Room code " + code + " does not exist")
@@ -103,10 +114,14 @@ func Quit(player Player, room *Room) error {
 
 func removeRoom(room *Room) {
 	log.Debug("Removing room " + room.Code)
-	for index := range rooms {
+	/*for index := range rooms {
 		if rooms[index].Code == room.Code {
 			room.Timer.ObserveDuration()
 			rooms = append(rooms[:index], rooms[index+1:]...)
 		}
 	}
+	*/
+
+	roomsMap.Remove(room.Code)
+	room.Timer.ObserveDuration()
 }
