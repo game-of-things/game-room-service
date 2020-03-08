@@ -114,14 +114,7 @@ func Quit(player Player, room *Room) error {
 
 func removeRoom(room *Room) {
 	log.Debug("Removing room " + room.Code)
-	/*for index := range rooms {
-		if rooms[index].Code == room.Code {
-			room.Timer.ObserveDuration()
-			rooms = append(rooms[:index], rooms[index+1:]...)
-		}
-	}
-	*/
-
 	roomsMap.Remove(room.Code)
 	room.Timer.ObserveDuration()
+	activeRooms.Dec()
 }
