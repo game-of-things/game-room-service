@@ -81,7 +81,7 @@ func SetupRouter() *gin.Engine {
 				return
 			}
 
-			c.JSON(http.StatusOK, gin.H{"message": "Player quit"})
+			c.JSON(http.StatusOK, gin.H{"message": "Player " + player.Name + " quit room " + code})
 		} else {
 			c.JSON(http.StatusNotFound, err.Error())
 		}
