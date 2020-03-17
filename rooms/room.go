@@ -97,7 +97,7 @@ func (player Player) Join(room *Room) {
 }
 
 // Quit remove player from specified room
-func Quit(player Player, room *Room) error {
+func (player Player) Quit(room *Room) error {
 	for index := range room.Players {
 		if room.Players[index].Name == player.Name {
 			if len(room.Players) <= 1 {

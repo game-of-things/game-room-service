@@ -76,7 +76,7 @@ func SetupRouter() *gin.Engine {
 		log.Debug("Attempting to quit room " + code)
 
 		if room, err := rooms.LookupRoom(code); err == nil {
-			if err := rooms.Quit(player, room); err != nil {
+			if err := player.Quit(room); err != nil {
 				c.JSON(http.StatusNotFound, err.Error())
 				return
 			}
