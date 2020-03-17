@@ -55,7 +55,7 @@ func SetupRouter() *gin.Engine {
 		log.Debug("Attempting to join room" + code)
 
 		if room, err := rooms.LookupRoom(code); err == nil {
-			rooms.Join(player, room)
+			player.Join(room)
 
 			c.JSON(http.StatusOK, room)
 		} else {

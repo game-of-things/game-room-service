@@ -92,7 +92,7 @@ func LookupRoom(code string) (*Room, error) {
 }
 
 // Join add a player to a specified room
-func Join(player Player, room *Room) {
+func (player Player) Join(room *Room) {
 	room.Players = append(room.Players, player)
 }
 
