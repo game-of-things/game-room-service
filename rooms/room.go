@@ -101,7 +101,7 @@ func Quit(player Player, room *Room) error {
 	for index := range room.Players {
 		if room.Players[index].Name == player.Name {
 			if len(room.Players) <= 1 {
-				removeRoom(room)
+				room.remove()
 				return nil
 			}
 			room.Players = append(room.Players[:index], room.Players[index+1:]...)
@@ -112,7 +112,7 @@ func Quit(player Player, room *Room) error {
 	return errors.New("Player " + player.Name + " not found in room " + room.Code)
 }
 
-func removeRoom(room *Room) {
+func (room *Room) remove() {
 	log.Debug("Removing room " + room.Code)
 	roomsMap.Remove(room.Code)
 	room.Timer.ObserveDuration()
