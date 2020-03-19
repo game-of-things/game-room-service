@@ -6,6 +6,7 @@ go:
 services:
   - docker
 
+# no need to install dependencies. this is done in the container image build
 install: skip
 
 env:
