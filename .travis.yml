@@ -3,14 +3,14 @@ language: go
 services:
   - docker
 
-before_install:
+install: skip
+
+before_script:
   - export TRAVIS_COMMIT_SHORT=$(echo $TRAVIS_COMMIT | cut -c-7)
 
-install:
+script:
   - docker build -t srowley/game-room-service:$TRAVIS_COMMIT_SHORT -t srowley/game-room-service:latest .
   - docker run -d -p 8080:8080 --name game-room-service srowley/game-room-service:$TRAVIS_COMMIT_SHORT
-
-script:
   - docker ps | grep -q game-room-service
 
 after_success:
