@@ -3,5 +3,11 @@ language: go
 services:
   - docker
 
-before_install:
+build:
   - docker build -t srowley/game-room-service:latest .
+
+install:
+  - docker run -d -p 8080:8080 --name game-room-service srowley/game-room-service
+
+script:
+  - docker ps | grep -q game-room-service
