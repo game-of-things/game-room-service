@@ -1,5 +1,8 @@
 language: go
 
+go:
+  - 1.14.0
+
 services:
   - docker
 
@@ -9,6 +12,7 @@ before_script:
   - export TRAVIS_COMMIT_SHORT=$(echo $TRAVIS_COMMIT | cut -c-7)
 
 script:
+  - go test
   - docker build -t srowley/game-room-service:$TRAVIS_COMMIT_SHORT -t srowley/game-room-service:latest .
   - docker run -d -p 8080:8080 --name game-room-service srowley/game-room-service:$TRAVIS_COMMIT_SHORT
   - docker ps | grep -q game-room-service
