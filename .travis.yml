@@ -4,8 +4,13 @@ services:
   - docker
 
 install:
-  - docker build -t srowley/game-room-service:latest .
-  - docker run -d -p 8080:8080 --name game-room-service srowley/game-room-service
+  - docker build -t srowley/game-room-service:$TRAVIS_COMMIT -t srowley/game-room-service:latest .
+  - docker run -d -p 8080:8080 --name game-room-service srowley/game-room-service:$TRAVIS_COMMIT
 
 script:
   - docker ps | grep -q game-room-service
+
+after_success:
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+  - docker push srowley/game-room-service:$TRAVIS_COMMIT
+  - docker push srowley/game-room-service:latest
