@@ -1,15 +1,16 @@
 language: go
 
 go:
-  - 1.14.0
+  - "1.14.0"
 
 services:
   - docker
 
 install: skip
 
-before_script:
-  - export TRAVIS_COMMIT_SHORT=$(echo $TRAVIS_COMMIT | cut -c-7)
+env:
+  global:
+    - TRAVIS_COMMIT_SHORT=$(echo $TRAVIS_COMMIT | cut -c-7)
 
 script:
   - go test
