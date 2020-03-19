@@ -3,10 +3,8 @@ language: go
 services:
   - docker
 
-build:
-  - docker build -t srowley/game-room-service:latest .
-
 install:
+  - docker build -t srowley/game-room-service:latest .
   - docker run -d -p 8080:8080 --name game-room-service srowley/game-room-service
 
 script:
