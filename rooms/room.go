@@ -32,7 +32,6 @@ func init() {
 
 // ListRooms list all the available rooms
 func ListRooms() []*Room {
-	//return &rooms
 	return roomsMap.GetAll()
 }
 
@@ -42,7 +41,6 @@ func CreateRoom(player Player) *Room {
 	room.Players = append(room.Players, player)
 	room.Timer = prometheus.NewTimer(roomDuration)
 
-	//rooms = append(rooms, *room)
 	roomsMap.Add(room.Code, room)
 
 	activeRooms.Inc()
@@ -75,15 +73,6 @@ func createRoom() *Room {
 
 // LookupRoom find a room by the character code
 func LookupRoom(code string) (*Room, error) {
-	/*for index := range rooms {
-		log.Debug("Room code ", rooms[index].Code)
-		if rooms[index].Code == code {
-			log.Debug("Found room: " + code)
-			return &rooms[index], nil
-		}
-	}
-	*/
-
 	if room := roomsMap.Get(code); room != nil {
 		return room, nil
 	}
