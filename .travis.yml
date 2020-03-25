@@ -3,6 +3,10 @@ language: go
 go:
   - 1.14.x
 
+git:
+  # set clone depth to 3 to allow small buffer of commits to include in build job
+  depth: 3
+
 services:
   - docker
 
