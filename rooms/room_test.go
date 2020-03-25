@@ -9,7 +9,7 @@ var (
 	validRoomCode = regexp.MustCompile(`^[A-Z]{4}$`)
 )
 
-func TestCreateRoomCode(t *testing.T) {
+func TestCreateRoom(t *testing.T) {
 	player := Player{}
 
 	room := CreateRoom(player)
