@@ -45,7 +45,7 @@ func CreateRoom(player Player) *Room {
 
 	activeRooms.Inc()
 
-	log.Debug(roomsMap)
+	log.Debug(&roomsMap)
 
 	return room
 }
