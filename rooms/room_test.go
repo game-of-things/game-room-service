@@ -14,7 +14,7 @@ func TestCreateRoom(t *testing.T) {
 
 	room := CreateRoom(player)
 
-	if validRoomCode.Match([]byte(room.Code)) {
+	if !validRoomCode.Match([]byte(room.Code)) {
 		t.Errorf("Room code was invalid: %v", room.Code)
 	}
 }
