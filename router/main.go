@@ -2,12 +2,14 @@ package router
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 
 	"game-room-service/rooms"
 
+	cors "github.com/itsjamie/gin-cors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -19,10 +21,21 @@ func SetupRouter() *gin.Engine {
 
 	router := gin.Default()
 
+	router.Use(cors.Middleware(cors.Config{
+		Origins:         "*",
+		Methods:         "GET, PUT, POST, DELETE",
+		RequestHeaders:  "Origin, Authorization, Content-Type",
+		ExposedHeaders:  "",
+		MaxAge:          50 * time.Second,
+		Credentials:     true,
+		ValidateHeaders: false,
+	}))
+
 	router.POST("/rooms/create", func(c *gin.Context) {
 		var player rooms.Player
 
 		if err := c.ShouldBindJSON(&player); err != nil {
+			log.Error(err.Error())
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
