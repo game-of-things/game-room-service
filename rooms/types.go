@@ -3,19 +3,21 @@ package rooms
 import (
 	"sync"
 
+	"github.com/gorilla/websocket"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Room information
 type Room struct {
 	Code    string
-	Players []Player
+	Players []*Player
 	Timer   *prometheus.Timer
 }
 
 // Player information
 type Player struct {
-	Name string
+	Name       string
+	Connection websocket.Conn
 }
 
 // RoomMap boom

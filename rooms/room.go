@@ -36,7 +36,7 @@ func ListRooms() []*Room {
 }
 
 // CreateRoom create a room with a Player resource
-func CreateRoom(player Player) *Room {
+func CreateRoom(player *Player) *Room {
 	room := createRoom()
 	room.Players = append(room.Players, player)
 	room.Timer = prometheus.NewTimer(roomDuration)
@@ -68,7 +68,7 @@ func createRoom() *Room {
 		}
 	}
 
-	return &Room{code, make([]Player, 0), nil}
+	return &Room{code, make([]*Player, 0), nil}
 }
 
 // LookupRoom find a room by the character code
@@ -82,7 +82,18 @@ func LookupRoom(code string) (*Room, error) {
 
 // Join add a player to a specified room
 func (player Player) Join(room *Room) {
-	room.Players = append(room.Players, player)
+	room.Players = append(room.Players, &player)
+}
+
+// LookupPlayer lookup player from specified room
+func (player Player) LookupPlayer(room *Room) (*Player, error) {
+	for index := range room.Players {
+		if room.Players[index].Name == player.Name {
+			return room.Players[index], nil
+		}
+	}
+
+	return &Player{}, errors.New("Player " + player.Name + " not found in room " + room.Code)
 }
 
 // Quit remove player from specified room

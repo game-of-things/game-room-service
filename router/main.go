@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
 	"game-room-service/rooms"
@@ -21,7 +22,7 @@ func SetupRouter() *gin.Engine {
 
 	router := gin.Default()
 
-	router.Use(cors.Middleware(cors.Config{
+	corsMiddleware := cors.Middleware(cors.Config{
 		Origins:         "*",
 		Methods:         "GET, PUT, POST, DELETE",
 		RequestHeaders:  "Origin, Authorization, Content-Type",
@@ -29,7 +30,9 @@ func SetupRouter() *gin.Engine {
 		MaxAge:          50 * time.Second,
 		Credentials:     true,
 		ValidateHeaders: false,
-	}))
+	})
+
+	router.Use(corsMiddleware)
 
 	router.POST("/rooms/create", func(c *gin.Context) {
 		var player rooms.Player
@@ -40,7 +43,7 @@ func SetupRouter() *gin.Engine {
 			return
 		}
 
-		room := rooms.CreateRoom(player)
+		room := rooms.CreateRoom(&player)
 
 		c.JSON(http.StatusOK, room)
 	})
@@ -102,6 +105,36 @@ func SetupRouter() *gin.Engine {
 
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")
+	})
+
+	wsUpgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	router.GET("/room/:code/player/:playerName/websocket", func(c *gin.Context) {
+		conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
+
+		if err != nil {
+			log.Error("Failed to set websocket upgrade: %+v", err)
+			return
+		}
+
+		for {
+			t, _, err := conn.ReadMessage()
+			if err != nil {
+				log.Error("Error reading message: %+v", err)
+				continue
+			}
+			if t == websocket.BinaryMessage {
+				log.Warn("Received binary message when expecting plain text. Ignoring")
+				continue
+			}
+			if t == websocket.PingMessage {
+				conn.WriteControl(websocket.PongMessage, []byte("pong"), time.Now())
+			}
+
+		}
 	})
 
 	if gin.Mode() != gin.ReleaseMode {
