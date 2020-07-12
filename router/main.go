@@ -116,12 +116,31 @@ func SetupRouter() *gin.Engine {
 	}
 
 	router.GET("/room/:code/player/:playerName/websocket", func(c *gin.Context) {
+
+		roomCode := c.Param("code")
+		playerName := c.Param("playerName")
+
+		room, err := rooms.LookupRoom(roomCode)
+
+		if err != nil {
+			log.Error("Unable to find room: %v", roomCode)
+			return
+		}
+
+		player, err := room.LookupPlayer(playerName)
+
+		if err != nil {
+			log.Error("Player '%v' does not exist in room '%v'", playerName, roomCode)
+		}
+
 		conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
 
 		if err != nil {
 			log.Error("Failed to set websocket upgrade: %+v", err)
 			return
 		}
+
+		player.Connection = conn
 
 		for {
 			t, _, err := conn.ReadMessage()

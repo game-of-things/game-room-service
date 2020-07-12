@@ -17,7 +17,7 @@ type Room struct {
 // Player information
 type Player struct {
 	Name       string
-	Connection websocket.Conn
+	Connection *websocket.Conn
 }
 
 // RoomMap boom

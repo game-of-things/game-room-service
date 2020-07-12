@@ -2,8 +2,10 @@ package rooms
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 
+	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -81,23 +83,26 @@ func LookupRoom(code string) (*Room, error) {
 }
 
 // Join add a player to a specified room
-func (player Player) Join(room *Room) {
-	room.Players = append(room.Players, &player)
+func (player *Player) Join(room *Room) {
+	for _, other := range room.Players {
+		other.Connection.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("{\"newPlayer\":\"%v\"", player.Name)))
+	}
+	room.Players = append(room.Players, player)
 }
 
-// LookupPlayer lookup player from specified room
-func (player Player) LookupPlayer(room *Room) (*Player, error) {
+// LookupPlayer lookup player by name
+func (room *Room) LookupPlayer(playerName string) (*Player, error) {
 	for index := range room.Players {
-		if room.Players[index].Name == player.Name {
+		if room.Players[index].Name == playerName {
 			return room.Players[index], nil
 		}
 	}
 
-	return &Player{}, errors.New("Player " + player.Name + " not found in room " + room.Code)
+	return &Player{}, errors.New("Player " + playerName + " not found in room " + room.Code)
 }
 
 // Quit remove player from specified room
-func (player Player) Quit(room *Room) error {
+func (player *Player) Quit(room *Room) error {
 	for index := range room.Players {
 		if room.Players[index].Name == player.Name {
 			if len(room.Players) <= 1 {
